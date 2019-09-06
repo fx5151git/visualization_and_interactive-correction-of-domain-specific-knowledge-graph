@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="./static/lib/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./static/lib/css/keen-dashboards.css">
+  <link rel="stylesheet" href="./static/css/custom.css">
+</head>
+
+<body class="application" style="margin:0; padding:0">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="./">Rescal Knowledge Graph Validation</a>
+          <button type="button" class="btn btn-primary" id="finish">Finish Validation</button>#}
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid" style="margin: 0.5em;">
+
+    <div class="row">
+
+      <div class="col-sm-3">
+        <div class="row">
+
+          <!-- relations -->
+          <div class="col-sm-12">
+            <div class="chart-wrapper">
+              <div class="chart-title">
+                Select Relations
+              </div>
+              <div class="chart-stage">
+                <form action= "{{ url_for('configuration') }}" method="POST">
+                 <select name= 'relation'>
+            {% for relation in relations_left %}
+                <option value= "{{relation}}">{{ relation }}</option>
+            {% endfor %}
+        </select>
+    <input type="submit" class="btn-info" value="submit">
+    </form>
+              </div>
+            </div>
+          </div>
+          <!-- relations-->
+        </div>
+
+        <div class="row">
+
+          <!-- relations_bar -->
+          <div class="col-sm-12">
+            <div class="chart-wrapper">
+              <div class="chart-title">
+                Suspicious Relations
+              </div>
+              <div class="chart-stage">
+              <div id="chart2" class="chart" style="width: 800px; height: 800px"></div>
+              </div>
+            </div>
+          </div>
+          <!-- relations-->
+        </div>
+      </div>
+
+
+      <div class="col-sm-9">
+
+        <div class="row">
+          <!-- Heatmap -->
+          <div class="col-sm-12">
+            <div class="chart-wrapper">
+              <div class="chart-title">
+                Knowledge graph
+                  <div id="relation_name">
+                      adjacent_to
+                  </div>
+              </div>
+              <div class="chart-stage">
+                <div id="chart" class="chart" ></div>
+
+
+                                <!-- Modal -->
+  <div class="hidden modal" id="myModal" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Validate</h4>
+        </div>
+<div class="modal-body">
+    <p align="middle"><input id="entity1Id" type="button"/>  <input id="relationId" type="button"/> <input id="entity2Id" type="button"/> </p>
+{#    <p align="middle"><p id="entity1Id"></p>relations  <p id="entity2Id"></p> </p>#}
+      <p align="middle"> <button type="button" class="btn btn-primary" data-dismiss="modal" id="button_true">True</button>      <button type="button" class="btn btn-primary" data-dismiss="modal" id="button_notsure">Not sure</button>     <button type="button" class="btn btn-primary" data-dismiss="modal" id="button_false">False</button></p>
+    </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+{#            <button type="button" class="btn btn-primary" data-dismiss="modal" id="button_click">Save changes</button>#}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+{#        <div class="col-sm-1">#}
+{#        <div class="row">#}
+{##}
+{#          <!-- entitiy info -->#}
+{#          <div class="col-sm-12">#}
+{#            <div class="chart-wrapper">#}
+{#              <div class="chart-title">#}
+{#                entity as subject#}
+{#              </div>#}
+{#              <div class="chart-stage">#}
+{#                <div id="time-chart"></div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div>#}
+{#          <!-- entity info -->#}
+{##}
+{#          <!-- entity info -->#}
+{#          <div class="col-sm-12">#}
+{#            <div class="chart-wrapper">#}
+{#              <div class="chart-title">#}
+{#                entity as object#}
+{#              </div>#}
+{#              <div class="chart-stage">#}
+{#                <div id="phone-brand-row-chart"></div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div>#}
+{#          <!-- entity info -->#}
+{##}
+{##}
+{#        </div>#}
+{#      </div>#}
+
+
+
+
+    </div>
+
+    <!-- Modal -->
+
+  </div>
+
+
+  <script src="./static/lib/js/jquery.min.js"></script>
+  <script src="./static/lib/js/bootstrap.min.js"></script>
+  <script src="./static/lib/js/keen.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+{#  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>#}
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script type="text/javascript">
+
+        var graphs = {{graphJSON | safe}};
+        var relations = {{relations | safe}};
+        var relation  = {{relation | safe}};
+        document.getElementById("relation_name").innerHTML = relations[relation];
+
+
+        Plotly.plot('chart',graphs[0],{});
+        Plotly.plot('chart2',graphs[1],{});
+
+        var rel = {{relation| safe}};
+        var rels = {{relations | safe}};
+        var entityX = ""
+        var entityY = ""
+
+        chart = document.getElementById('chart')
+        chart.on('plotly_click', function(eventData) {
+            $(document).ready(function() {
+                entityX = eventData.points[0].x
+                entityY = eventData.points[0].y
+                $('#entity1Id').attr('value', eventData.points[0].x)
+                {#val(eventData.points[0].x)#}
+                $('#entity2Id').val(eventData.points[0].y)
+                $('#relationId').val(rels[rel])
+                {#document.getElementById('entity1Id').value =eventData.points[0].x#}
+                {#document.getElementById('entity2Id').value =eventData.points[0].y#}
+                {#$("#relation").val($(this).data('id'));#}
+                $('#myModal').modal('show');
+            });
+        });
+
+
+
+        chart2 = document.getElementById('chart2')
+        chart2.on('plotly_click', function(eventData) {
+            $.ajax({
+                url : "/frombar",
+                data:{"relation":JSON.stringify(eventData.points[0].pointIndex)},
+                type: 'POST',
+                success: function(data){
+                    {#console.log(eventData.points[0].pointIndex)#}
+                    {#console.log(eventData.points[0])#}
+
+                    document.getElementById("relation_name").innerHTML = relations[eventData.points[0].pointIndex];
+                    var graphs = JSON.parse(data)
+                    {#Plotly.redraw('chart',graphs[0],{});#}
+                    Plotly.newPlot('chart',graphs[0],{});
+                    chart = document.getElementById('chart');
+                    chart.on('plotly_click', function(eventData) {
+                        $(document).ready(function() {
+                        entityX = eventData.points[0].x
+                        entityY = eventData.points[0].y
+                        $('#entity1Id').attr('value', eventData.points[0].x)
+                {#val(eventData.points[0].x)#}
+                        $('#entity2Id').val(eventData.points[0].y)
+                        $('#relationId').val(rels[rel])
+                {#document.getElementById('entity1Id').value =eventData.points[0].x#}
+                {#document.getElementById('entity2Id').value =eventData.points[0].y#}
+                {#$("#relation").val($(this).data('id'));#}
+                        $('#myModal').modal('show');
+                        });
+        });
+
+
+                    relation =  eventData.points[0].pointIndex
+
+             }
+             });
+        })
+
+        $(document).on('click','#button_true',function() {
+            console.log('click')
+            $.ajax({
+                url: "/change_to_true",
+                data: {
+                    "x": JSON.stringify(entityX),
+                    "y": JSON.stringify(entityY),
+                    "rel": JSON.stringify(rel)
+                },
+                type: 'POST',
+                success: function (data) {
+
+                    var graphs = JSON.parse(data)
+                    Plotly.newPlot('chart',graphs[0],{});
+                    chart = document.getElementById('chart');
+                    chart.on('plotly_click', function(eventData) {
+                        $(document).ready(function() {
+                        entityX = eventData.points[0].x
+                        entityY = eventData.points[0].y
+                        $('#entity1Id').attr('value', eventData.points[0].x)
+                {#val(eventData.points[0].x)#}
+                        $('#entity2Id').val(eventData.points[0].y)
+                        $('#relationId').val(rels[rel])
+                {#document.getElementById('entity1Id').value =eventData.points[0].x#}
+                {#document.getElementById('entity2Id').value =eventData.points[0].y#}
+                {#$("#relation").val($(this).data('id'));#}
+                        $('#myModal').modal('show');
+                        });
+        });
+
+                }
+            });
+        })
+
+        $(document).on('click','#button_false',function() {
+            $.ajax({
+                url : "/change_to_false",
+                data:{"x":JSON.stringify(entityX),
+                      "y":JSON.stringify(entityY),
+                      "rel":JSON.stringify(rel)},
+                type: 'POST',
+                success: function(data){
+                    var graphs = JSON.parse(data)
+                    Plotly.newPlot('chart',graphs[0],{});
+
+                    chart = document.getElementById('chart');
+                    chart.on('plotly_click', function(eventData) {
+                        $(document).ready(function() {
+                        entityX = eventData.points[0].x
+                        entityY = eventData.points[0].y
+                        $('#entity1Id').attr('value', eventData.points[0].x)
+                {#val(eventData.points[0].x)#}
+                        $('#entity2Id').val(eventData.points[0].y)
+                        $('#relationId').val(rels[rel])
+                {#document.getElementById('entity1Id').value =eventData.points[0].x#}
+                {#document.getElementById('entity2Id').value =eventData.points[0].y#}
+                {#$("#relation").val($(this).data('id'));#}
+                        $('#myModal').modal('show');
+                        });
+        });
+
+             }
+             });
+
+        });
+
+        $(document).on('click','#button_notsure',function() {
+            $.ajax({
+                url : "/change_to_notsure",
+                data:{"x":JSON.stringify(entityX),
+                      "y":JSON.stringify(entityY),
+                      "rel":JSON.stringify(rel)},
+                type: 'POST',
+                success: function(data){
+                    var graphs = JSON.parse(data)
+                    Plotly.newPlot('chart',graphs[0],{});
+
+                    chart = document.getElementById('chart');
+                    chart.on('plotly_click', function(eventData) {
+                        $(document).ready(function() {
+                        entityX = eventData.points[0].x
+                        entityY = eventData.points[0].y
+                        $('#entity1Id').attr('value', eventData.points[0].x)
+                {#val(eventData.points[0].x)#}
+                        $('#entity2Id').val(eventData.points[0].y)
+                        $('#relationId').val(rels[rel])
+                {#document.getElementById('entity1Id').value =eventData.points[0].x#}
+                {#document.getElementById('entity2Id').value =eventData.points[0].y#}
+                {#$("#relation").val($(this).data('id'));#}
+                        $('#myModal').modal('show');
+                        });
+        });
+
+             }
+             });
+
+        });
+
+        $(document).on('click','#finish',function() {
+            $.ajax({
+                url : "/finish",
+                data:{},
+                type: 'POST',
+                success: function(data){
+             }
+             });
+
+        });
+
+
+
+
+
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="./static/lib/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./static/lib/css/keen-dashboards.css">
+  <link rel="stylesheet" href="./static/css/custom.css">
+</head>
+
+<body class="application" style="margin:0; padding:0">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="./">Rescal Knowledge Graph Validation</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid" style="margin: 0.5em;">
+
+    <div class="row">
+
+      <div class="col-sm-3">
+        <div class="row">
+
+          <!-- relations -->
+          <div class="col-sm-12">
+            <div class="chart-wrapper">
+              <div class="chart-title">
+                Select Relations
+              </div>
+              <div class="chart-stage">
+                <form action= "{{ url_for('configuration') }}" method="POST">
+                 <select name= 'relation'>
+            {% for relation in relations %}
+                <option value= "{{relation}}">{{ relation }}</option>
+            {% endfor %}
+        </select>
+    <input type="submit" class="btn-info" value="submit">
+    </form>
+              </div>
+            </div>
+          </div>
+          <!-- relations-->
+        </div>
+
+        <div class="row">
+
+          <!-- relations_bar -->
+          <div class="col-sm-12">
+            <div class="chart-wrapper">
+              <div class="chart-title">
+                Certainty of Relations
+              </div>
+              <div class="chart-stage">
+              <div id="chart2" class="chart" style="width: 800px; height: 800px"></div>
+              </div>
+            </div>
+          </div>
+          <!-- relations-->
+        </div>
+      </div>
+
+
+      <div class="col-sm-8">
+
+        <div class="row">
+          <!-- Heatmap -->
+          <div class="col-sm-12">
+            <div class="chart-wrapper">
+              <div class="chart-title">
+                Knowledge graph
+              </div>
+              <div class="chart-stage">
+                <div id="chart" class="chart" style="width: 800px; height: 800px"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Heatmap -->
+        </div>
+      </div>
+
+        <div class="col-sm-1">
+        <div class="row">
+
+          <!-- entitiy info -->
+          <div class="col-sm-12">
+            <div class="chart-wrapper">
+              <div class="chart-title">
+                entity as subject
+              </div>
+              <div class="chart-stage">
+                <div id="time-chart"></div>
+              </div>
+            </div>
+          </div>
+          <!-- entity info -->
+
+          <!-- entity info -->
+          <div class="col-sm-12">
+            <div class="chart-wrapper">
+              <div class="chart-title">
+                entity as object
+              </div>
+              <div class="chart-stage">
+                <div id="phone-brand-row-chart"></div>
+              </div>
+            </div>
+          </div>
+          <!-- entity info -->
+
+
+        </div>
+      </div>
+
+
+
+
+    </div>
+
+  </div>
+
+
+  <script src="./static/lib/js/jquery.min.js"></script>
+  <script src="./static/lib/js/bootstrap.min.js"></script>
+  <script src="./static/lib/js/keen.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script type="text/javascript">
+
+        var graphs = {{graphJSON | safe}};
+
+        Plotly.plot('chart',graphs[0],{});
+        Plotly.plot('chart2',graphs[1],{});
+
+
+    </script>
+
+
+</body>
+</html>

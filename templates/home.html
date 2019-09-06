@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Knowledge graph app</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+{#    <header>#}
+{#        <div class="container">#}
+{#            <h2> Rescal Result</h2>#}
+{#        </div>#}
+{#    </header>#}
+
+    <div class="knowledge graph container">
+        <h3>choose the relationship</h3>
+        <select>
+            <option value ="umls">Umls</option>
+        </select>
+        <form action="{{ url_for('cluster')}}" method="POST">
+
+		<input type="submit" class="btn-info" value="predict">
+
+	</form>
+    </div>
+</body>
+</html>

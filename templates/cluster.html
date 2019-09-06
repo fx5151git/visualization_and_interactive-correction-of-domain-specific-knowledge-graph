@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="./static/lib/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./static/lib/css/keen-dashboards.css">
+  <link rel="stylesheet" href="./static/css/custom.css">
+</head>
+
+<body class="application" style="margin:0; padding:0">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="./">Rescal Knowledge Graph Validation - choose entity cluster</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid" style="margin: 0.5em;">
+
+    <div class="row">
+
+      <div class="col-sm-5">
+          <div class="chart-wrapper">
+              <div class="chart-title">
+                  Click lineplot to choose cluster:
+                  <form action="{{ url_for('predict')}}" method="POST" >
+{#                      class="form-inline"#}
+                      <div class="row">
+  <div class="col-xs-10 col-md-6">
+       <label for="formGroupExampleInput" id="cluster_value">Null</label>
+  </div>
+  <div class="col-xs-8 col-md-6">
+       <button name="submit" type="submit" class="btn btn-primary mr-2"  id="cluster_submit">Confirm and to Validation</button>
+  </div>
+</div>
+{#                      <p class="font-italic" align="middle" id="cluster_value">                      </p>#}
+{#                       <button name="submit" type="submit" class="btn btn-primary mr-2"  id="cluster_submit">Confirm and to Validation</button>#}
+              </form>
+              </div>
+              <div class="chart-stage">
+              <div id="chart" class="chart" style="width: 800px; height: 450px"></div>
+              </div>
+            </div>
+      </div>
+
+
+      <div class="col-sm-6">
+          <div class="chart-wrapper">
+              <div class="chart-title">
+                Entity TSNE Cluster result
+              </div>
+              <div class="input-group">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="">perplexity</span>
+  </div>
+  <input type="text" class="form-control" id="perplexity">
+  <button type="button" class="btn btn-outline-primary" id="perplexity-submit">Submit Perplexity</button>
+                  <button type="button" class="btn btn-outline-primary" id="tsne">Refresh TSNE</button>
+</div>
+              <div class="chart-stage">
+              <div id="chart2" class="chart" style="width: 800px; height: 500px"></div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+{#        <div class="col-sm-1">#}
+{#        <div class="row">#}
+{##}
+{#          <!-- entitiy info -->#}
+{#          <div class="col-sm-12">#}
+{#            <div class="chart-wrapper">#}
+{#              <div class="chart-title">#}
+{#                entity as subject#}
+{#              </div>#}
+{#              <div class="chart-stage">#}
+{#                <div id="time-chart"></div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div>#}
+{#          <!-- entity info -->#}
+{##}
+{#          <!-- entity info -->#}
+{#          <div class="col-sm-12">#}
+{#            <div class="chart-wrapper">#}
+{#              <div class="chart-title">#}
+{#                entity as object#}
+{#              </div>#}
+{#              <div class="chart-stage">#}
+{#                <div id="phone-brand-row-chart"></div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div>#}
+{#          <!-- entity info -->#}
+{##}
+{##}
+{#        </div>#}
+{#      </div>#}
+
+
+
+
+    </div>
+
+    <!-- Modal -->
+
+  </div>
+
+
+  <script src="./static/lib/js/jquery.min.js"></script>
+  <script src="./static/lib/js/bootstrap.min.js"></script>
+  <script src="./static/lib/js/keen.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+{#  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>#}
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script type="text/javascript">
+
+        var graphs = {{graphJSON | safe}};
+
+        Plotly.plot('chart',graphs[0],{});
+        Plotly.plot('chart2',graphs[1],{});
+
+        var num = 0
+
+
+        chart = document.getElementById('chart')
+        chart.on('plotly_click', function(eventData) {
+            document.getElementById("cluster_value").innerHTML = eventData.points[0].x
+            document.getElementById("cluster_submit").value = eventData.points[0].x
+            num = eventData.points[0].x
+            $.ajax({
+                url : "/changecolor",
+                data:{"num":JSON.stringify(eventData.points[0].x)},
+                type: 'POST',
+                success: function(data) {
+
+                    var graphs = JSON.parse(data)
+                    Plotly.redraw('chart2', graphs[0], {});
+                    Plotly.newPlot('chart2', graphs[0], {});
+                }
+        });
+        })
+
+
+        $(document).on('click','#perplexity-submit',function() {
+            $.ajax({
+                url: "/perplexity",
+                data: {"perp": JSON.stringify(Number(document.getElementById("perplexity").value))},
+                type: 'POST',
+                success: function(data){
+                    var graphs = JSON.parse(data)
+                    Plotly.redraw('chart2', graphs[0], {});
+                    Plotly.newPlot('chart2', graphs[0], {});
+
+                }
+             });
+         })
+
+        $(document).on('click','#tsne',function() {
+            $.ajax({
+                url: "/refresh",
+                data: {"perp": JSON.stringify(document.getElementById("perplexity").value)},
+                type: 'POST',
+                success: function(data){
+                    var graphs = JSON.parse(data)
+                    Plotly.redraw('chart2', graphs[0], {});
+                    Plotly.newPlot('chart2', graphs[0], {});
+
+                }
+             });
+         })
+
+
+        {##}
+        {#chart2 = document.getElementById('chart2')#}
+        {#chart2.on('plotly_click', function(eventData) {#}
+        {#    $.ajax({#}
+        {#        url : "/frombar",#}
+        {#        data:{"relation":JSON.stringify(eventData.points[0].pointIndex)},#}
+        {#        type: 'POST',#}
+        {#        success: function(data){#}
+                    {#console.log(eventData.points[0].pointIndex)#}
+                    {#console.log(eventData.points[0])#}
+        {##}
+        {#            document.getElementById("relation_name").innerHTML = relations[eventData.points[0].pointIndex];#}
+        {#            var graphs = JSON.parse(data)#}
+                    {#Plotly.redraw('chart',graphs[0],{});#}
+        {#            Plotly.newPlot('chart',graphs[0],{});#}
+        {#            chart = document.getElementById('chart');#}
+        {#            chart.on('plotly_click', function(eventData) {#}
+        {#                $(document).ready(function() {#}
+        {#                entityX = eventData.points[0].x#}
+        {#                entityY = eventData.points[0].y#}
+        {#                $('#entity1Id').attr('value', eventData.points[0].x)#}
+                {#val(eventData.points[0].x)#}
+        {#                $('#entity2Id').val(eventData.points[0].y)#}
+        {#                $('#relationId').val(rels[rel])#}
+                {#document.getElementById('entity1Id').value =eventData.points[0].x#}
+                {#document.getElementById('entity2Id').value =eventData.points[0].y#}
+                {#$("#relation").val($(this).data('id'));#}
+        {#                $('#myModal').modal('show');#}
+        {#                });#}
+        {# });#}
+        {##}
+        {##}
+        {#            relation =  eventData.points[0].pointIndex#}
+        {##}
+        {#     }#}
+        {#     });#}
+        {# })#}
+
+
+
+    </script>
+
+
+</body>
+</html>

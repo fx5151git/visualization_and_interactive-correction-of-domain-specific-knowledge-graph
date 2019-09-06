@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>result</title>
+       <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+
+
+<body>
+    <form action= "{{ url_for('configuration') }}" method="POST">
+        <select name= 'relation'>
+            {% for relation in relations %}
+                <option value= "{{relation}}">{{ relation }}</option>
+            {% endfor %}
+        </select>
+    <input type="submit" class="btn-info" value="submit">
+    </form>
+	<div class="results">
+    <div id="chart" class="chart">
+    </div>
+	</div>
+</body>
+
+    <!-- D3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script type="text/javascript">
+
+        var graphs = {{graphJSON | safe}};
+
+        Plotly.plot('chart',graphs,{});
+
+    </script>
+</html>

@@ -1,0 +1,8 @@
+#number-records-nd {
+    font-size: 55px;
+}
+
+.modal-backdrop {
+    /* bug fix - no overlay */
+    display: none;
+}
